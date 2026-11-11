@@ -34,8 +34,8 @@ flowchart TB
 | Departments | Department CRUD under a company (admin roles) | `/api/v1/departments` |
 | Shifts | Shift CRUD: company-wide or department-scoped, start and end time, grace period | `/api/v1/shifts` |
 | Attendance | Check-in and check-out, live status, history, breaks, daily and weekly summaries, department and company views | `/api/v1/attendances` |
-| Leave types / balances / requests | Leave catalogue per company, balances per user and type, and requests with an overlap check | `/api/v1/leave-types`, `/leave-balances`, `/leave-requests` |
-| Setup | One-call tenant onboarding | `/api/v1/setup` |
+| Leave types / balances / requests | Leave catalogue per company, balances per user and type, and requests (created, listed, deleted; `PENDING` by default) with an overlap check | `/api/v1/leave-types`, `/leave-balances`, `/leave-requests` |
+| Setup | Authenticated one-call onboarding (company, department, shift, first user) | `/api/v1/setup` |
 
 ## Request pipeline
 
@@ -172,7 +172,7 @@ erDiagram
     text reason
     uuid user_id FK
     uuid company_id FK
-    uuid department_id FK
+    uuid department_id FK "nullable"
     uuid leave_type_id FK
   }
 
@@ -182,6 +182,7 @@ erDiagram
   COMPANY ||--o{ LEAVE_REQUEST : receives
   DEPARTMENT |o--o{ USER : employs
   DEPARTMENT |o--o{ SHIFT : scopes
+  DEPARTMENT |o--o{ LEAVE_REQUEST : "tagged on"
   USER ||--o{ ATTENDANCE : records
   SHIFT ||--o{ ATTENDANCE : "applies to"
   ATTENDANCE ||--o{ BREAK : contains
@@ -191,7 +192,7 @@ erDiagram
   LEAVE_TYPE ||--o{ LEAVE_REQUEST : "is of"
 ```
 
-Referential behaviour is set on the relations. Deleting a company cascades to its departments, leave types and leave requests. Deleting a department sets the department to null on users and shifts instead of deleting them. Deleting a user cascades to their leave balances and requests.
+Referential behaviour is set on the relations. Deleting a company cascades to its departments, leave types and leave requests. Deleting a department sets the department to null on users, shifts and leave requests instead of deleting them. Deleting a user cascades to their leave balances and requests.
 
 ## Deployment
 

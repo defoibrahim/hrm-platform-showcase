@@ -39,24 +39,27 @@ All screenshots are real captures of the live, public Swagger UI at [hrm.everbui
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/organization-endpoints.png" alt="Companies, Departments and Shifts endpoint groups with full CRUD operations" width="49%">
+  <img src="docs/screenshots/attendance-history-operation.png" alt="Expanded attendance history operation showing the user id path parameter and the startDate, endDate, page and limit query parameters" width="49%">
   <img src="docs/screenshots/auth-endpoints.png" alt="Auth endpoint group: register, login, email check, profile, user listing, department assignment and Google sign-in" width="49%">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/attendance-history-operation.png" alt="Expanded attendance history operation showing the user id path parameter and the startDate, endDate, page and limit query parameters" width="49%">
-  <img src="docs/screenshots/login-operation.png" alt="Expanded login operation showing the JSON request body example with placeholder email and password" width="49%">
+  <img src="docs/screenshots/organization-endpoints.png" alt="Companies, Departments and Shifts endpoint groups with full CRUD operations" width="100%">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/authorize-bearer-jwt.png" alt="Swagger Authorize dialog for the bearer JWT security scheme" width="100%">
+  <img src="docs/screenshots/login-operation.png" alt="Expanded login operation showing the JSON request body example with placeholder email and password" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/authorize-bearer-jwt.png" alt="Swagger Authorize dialog for the bearer JWT security scheme" width="60%">
 </p>
 
 ## Features
 
 **Organisation setup**
 - Companies, departments and shifts, each with create, read, update and delete endpoints.
-- One-call onboarding (`POST /setup/complete`): creates a company, its first department, a shift and the first user, then assigns that user to the department with a role.
+- Orchestrated onboarding (`POST /setup/complete`, authenticated): one call creates a company, its first department, a shift and the first user, then assigns that user to the department with a role.
 - Shifts belong to a company and can optionally be scoped to a department. Each has start and end times and a grace period (15 minutes by default).
 
 **Attendance**
@@ -71,7 +74,7 @@ All screenshots are real captures of the live, public Swagger UI at [hrm.everbui
 **Leave management**
 - Leave types per company, each with a default number of days.
 - Leave balances per user and leave type, with one balance per pair.
-- Leave requests (`PENDING` / `APPROVED` / `REJECTED`). A new request is rejected if it overlaps one of the user's pending requests.
+- Leave requests per user and leave type, created as `PENDING` by default (status enum `PENDING` / `APPROVED` / `REJECTED`). A new request is rejected if it overlaps one of the user's pending requests. Approval endpoints are not part of this API yet.
 
 **Identity and access**
 - Email and password registration and login, with bcrypt-hashed passwords and JWT access tokens.
@@ -83,12 +86,13 @@ All screenshots are real captures of the live, public Swagger UI at [hrm.everbui
 ```mermaid
 flowchart LR
   subgraph Clients
-    M[Mobile client]
+    M[Mobile client<br/>planned]
     W[Web front end]
     S[Swagger UI /docs]
   end
 
-  M & W & S -->|HTTPS| NG[Nginx<br/>TLS termination]
+  M -.->|HTTPS| NG[Nginx<br/>TLS termination]
+  W & S -->|HTTPS| NG
   NG --> APP
 
   subgraph APP[NestJS 11 API, run by PM2]
@@ -115,8 +119,9 @@ erDiagram
   COMPANY ||--o{ SHIFT : defines
   COMPANY ||--o{ LEAVE_TYPE : defines
   COMPANY ||--o{ LEAVE_REQUEST : receives
-  DEPARTMENT ||--o{ USER : employs
+  DEPARTMENT |o--o{ USER : employs
   DEPARTMENT |o--o{ SHIFT : "optionally scopes"
+  DEPARTMENT |o--o{ LEAVE_REQUEST : "tagged on"
   USER ||--o{ ATTENDANCE : records
   SHIFT ||--o{ ATTENDANCE : "applies to"
   ATTENDANCE ||--o{ BREAK : contains
@@ -134,7 +139,7 @@ All primary keys are UUIDs. The live OpenAPI spec lists 56 operations in 10 grou
 - **Every response has the same shape.** A global interceptor wraps successes as `{ status, message, code, data }`, and a catch-all exception filter returns errors in the same shape with `path` and `timestamp`. Mobile and web clients parse one format.
 - **Attendance rules live on the server.** Check-in looks up the user's department shift and falls back to the company-wide shift (one with no department). It rejects a second check-in on the same day and works out `PRESENT` or `LATE` from the shift start and grace period. Clients never send a status.
 - **Breaks are child records of attendance.** Storing them this way makes rules such as one open break at a time, no break before check-in and no break after check-out simple checks against the day's record.
-- **Onboarding is one orchestrated call.** The setup service reuses the company, department, shift and auth services in sequence, so a new tenant is usable after a single request.
+- **Onboarding is one orchestrated call.** One authenticated call (`POST /setup/complete`) runs the company, department, shift and auth services in sequence to create the company, its first department, a shift and the first user, instead of duplicating that logic.
 - **The API is versioned and hardened from day one.** It uses URI versioning (`/api/v1`), Helmet security headers, a whitelisting `ValidationPipe` with implicit type conversion, and `ClassSerializerInterceptor`, so password hashes (`@Exclude`) are never serialised.
 
 ## Tech stack
@@ -147,7 +152,6 @@ All primary keys are UUIDs. The live OpenAPI spec lists 56 operations in 10 grou
 | Validation and serialisation | class-validator, class-transformer, global `ValidationPipe` |
 | Security | Helmet (CSP, HSTS and other headers), CORS, role guard, TLS at the Nginx proxy |
 | API docs | `@nestjs/swagger` (OpenAPI 3.0), Swagger UI at `/docs` |
-| Testing | Jest, ts-jest, Supertest |
 | CI/CD | GitHub Actions: build on push to `main`, then SSH deploy |
 | Hosting | Ubuntu VPS, Nginx reverse proxy, PM2 (auto-restart, memory cap) |
 
@@ -160,7 +164,7 @@ I co-developed the backend with one other developer, in a private GitHub organis
 - **Access control:** department CRUD with role-based access, linked to companies.
 - **Onboarding:** the `setup` module (company, department, shift and first user in one call).
 - **Attendance for mobile:** current status, today's record, paginated history, shift info, break management (start, end, list, active break) and the daily and weekly summary endpoints.
-- **Delivery:** the GitHub Actions pipeline that builds and deploys to the VPS, the PM2 ecosystem config and the post-deploy health check.
+- **Delivery:** the GitHub Actions pipeline that builds and deploys to the VPS, plus (with my own automation tooling) the PM2 ecosystem config and the post-deploy health check.
 
 The other developer scaffolded the project and the database connection. They built the company, department and user modules, the response interceptor and exception filter, shifts, the first check-in and check-out flow, and the leave module (types, balances, requests).
 
@@ -168,8 +172,8 @@ The other developer scaffolded the project and the database connection. They bui
 
 - **Live:** the API and its documentation are at [hrm.everbuild.cloud/docs](https://hrm.everbuild.cloud/docs).
 - **Development:** September 2025 to February 2026 (first commit 16 Sep 2025, latest 4 Feb 2026).
-- **Clients:** the attendance endpoints were designed for a mobile client, and a web front end lives in a separate private repository.
+- **Clients:** the attendance endpoints were designed for a mobile client (planned; the diagram shows it dashed), and a web front end lives in a separate private repository.
 
 ---
 
-<p align="center">© 2026 Dafallah Ibrahim. Screenshots and documentation only. Source code is private.</p>
+<p align="center">© 2026 Dafallah Ibrahim (documentation and screenshots). HRM Platform is a team project, shared with permission. Source code is private.</p>
