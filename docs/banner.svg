@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="HRM Platform: multi-company HR backend for attendance, shifts and leave">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a5f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="16" fill="url(#bg)"/>
+  <g fill="none" stroke="#38bdf8" stroke-opacity="0.18" stroke-width="2">
+    <circle cx="1080" cy="160" r="70"/>
+    <circle cx="1080" cy="160" r="110"/>
+    <circle cx="1080" cy="160" r="150"/>
+  </g>
+  <g transform="translate(1080 160)" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" fill="none">
+    <circle r="44"/>
+    <path d="M0 -26 V0 L18 12"/>
+  </g>
+  <text x="80" y="138" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="64" font-weight="700" fill="#f8fafc">HRM Platform</text>
+  <text x="82" y="190" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="26" fill="#cbd5e1">Multi-company HR backend: attendance, shifts, breaks and leave</text>
+  <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" font-weight="600">
+    <rect x="82" y="224" width="112" height="36" rx="18" fill="#e0234e"/>
+    <text x="138" y="248" text-anchor="middle" fill="#fff">NestJS</text>
+    <rect x="206" y="224" width="112" height="36" rx="18" fill="#00758f"/>
+    <text x="262" y="248" text-anchor="middle" fill="#fff">MySQL</text>
+    <rect x="330" y="224" width="132" height="36" rx="18" fill="#3178c6"/>
+    <text x="396" y="248" text-anchor="middle" fill="#fff">TypeScript</text>
+    <rect x="474" y="224" width="120" height="36" rx="18" fill="#85ea2d"/>
+    <text x="534" y="248" text-anchor="middle" fill="#0f172a">OpenAPI</text>
+  </g>
+</svg>
