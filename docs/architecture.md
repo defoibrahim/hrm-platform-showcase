@@ -21,8 +21,7 @@ flowchart TB
   APP --> LR[LeaveRequestModule]
   APP --> SETUP[SetupModule]
   APP --> THR[ThrottlerModule<br/>sign-in rate limits]
-
-  USERS & COMP & DEPT & SHIFT & ATT & LT & LB & LR -. ask .-> POL[Access policy<br/>role · ownership · company]
+  APP --> POL[Access policy<br/>role · ownership · company<br/>called by every feature service]
 
   AUTH --- JWTS[JWT strategy]
   AUTH --- GS[Google OAuth strategy]
