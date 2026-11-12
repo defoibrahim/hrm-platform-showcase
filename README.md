@@ -66,11 +66,20 @@ All screenshots are real captures of the live demo, signed in with the demo acco
 
 **On a phone**
 
+The same web app is responsive: at phone width the sidebar becomes a slide-out menu and the cards stack.
+
 <p align="center">
-  <img src="docs/screenshots/ui-mobile-admin-dashboard.png" alt="Admin dashboard on a 390px-wide phone screen" width="24%">
-  <img src="docs/screenshots/ui-mobile-admin-menu.png" alt="The admin's slide-out navigation on a phone" width="24%">
-  <img src="docs/screenshots/ui-mobile-employee-dashboard.png" alt="Employee My day card, checked in, and leave balances on a phone" width="24%">
-  <img src="docs/screenshots/ui-mobile-employee-leave.png" alt="Leave request form on a phone" width="24%">
+  <img src="docs/screenshots/framed/ui-mobile-cover-trio.png" alt="HRM Platform web app on three phones: the admin dashboard on the left, the employee's My day card in the centre and the admin's slide-out navigation on the right" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/framed/ui-mobile-employee-dashboard.png" alt="Employee dashboard on a phone: the My day card with shift hours, status Present, check-in time, Check out and Start break buttons, and leave balances with a pending annual leave request" width="31%">
+  <img src="docs/screenshots/framed/ui-mobile-admin-dashboard.png" alt="Admin dashboard on a phone for Demo Company (sample data): 9 employees, 8 present today, 1 on leave today and 3 pending leave requests" width="31%">
+  <img src="docs/screenshots/framed/ui-mobile-admin-menu.png" alt="The admin's slide-out navigation on a phone: Dashboard, Attendance, Leave, Employees, Departments, Shifts, Company, My profile and Sign out" width="31%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/framed/ui-mobile-employee-leave.png" alt="Leave request form on a phone: leave type, from and to dates, an optional reason and a Send request button, with My balances below" width="31%">
 </p>
 
 ## Features
